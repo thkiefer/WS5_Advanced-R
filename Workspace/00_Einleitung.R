@@ -26,7 +26,11 @@ pacman::p_load(here,
                Rcpp,
                TAM,
                RXKCD,
-               tensor)
+               tensor,
+               doParallel, 
+               foreach, 
+               ggplot2, 
+               profvis)
 
 # ______________________ ---- 
 # Organisatorisches ----
