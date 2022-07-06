@@ -269,12 +269,14 @@ x[order(x)]
 sort.default
 x[c(1, 1)]
 x[c(2.1, 2.9)]
-
+x[c(1, 5)]
 x[-c(1, 2)]
 x[c(-1, 2)]
 
 x[c(TRUE, TRUE, FALSE, FALSE)]
 x[x > 3]
+x[TRUE]
+x[FALSE]
 x[c(TRUE, FALSE)]
 x[c(TRUE, FALSE, TRUE)] 
 x[c(TRUE, FALSE, NA, TRUE)]
@@ -282,6 +284,9 @@ x[c(TRUE, FALSE, NA, TRUE)]
 ##
 x[]
 x[0]
+x[NULL]
+x[NA]
+x[NA_real_]
 str(0)
 
 ##
@@ -405,6 +410,20 @@ str(df[, 1, drop = FALSE])
 str(df[[1]])
 str(df$a)
 
+# combine
+x <- 1:4
+l <- list(a = 5, b = 6, c = 7, d = 8)
+c(x, l)
+c(x, l, recursive = TRUE) ## https://twitter.com/data_question/status/1526178359776010242
+c(x, l, recursive = TRUE, use.names = FALSE)
+
+c(list(x), l)
+list(x, l)
+list(x, c(l, recursive = TRUE, use.names = FALSE))
+list(x, unname(unlist(l)))
+
+rep(list(x), 5) ## https://stackoverflow.com/questions/8406307/repeat-list-object-n-times
+
   ## _> Zugriff und Zuweisung ----
 
 x <- 1:5
@@ -423,6 +442,9 @@ x[c(1, NA)] <- c(1, 2) # bei Zuweisung keine fehlenden Integer möglich
 x[c(TRUE, FALSE, NA)] <- 1 
 x[c(TRUE, FALSE, NA)]
 x[c(TRUE, FALSE, NA, TRUE, FALSE)]
+
+x[7] <- 7 # https://twitter.com/data_question/status/1544297752976400384
+x
 
 ##
 df <- data.frame(a = c(1, 10, NA))

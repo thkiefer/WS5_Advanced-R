@@ -110,9 +110,10 @@ f()
 Rprof(NULL)
 summaryRprof(tmp)
 
-## Fortgeschritten bspw. 
+## [optional]
 ## Hadley Wickham: devtools::install_github("hadley/lineprof") -- deprecated
 ## Jenny Bryan: devtools::install_github("rstudio/profvis") 
+## https://support.rstudio.com/hc/en-us/articles/218221837-Profiling-R-code-with-the-RStudio-IDE
 library(profvis)
 library(ggplot2)
 profvis({
@@ -185,7 +186,7 @@ microbenchmark( ## multipliziere jede Zeile eintragsweise mit der darauffolgende
 all.equal(bmx, cmx)
 
 ## vectorized if
-hit <- NA 
+hit <- vector(length =)
 microbenchmark(
   "hit" = for(i in 1:1e4) if(runif(1) < .3) hit[i] <- TRUE,
   "fasthit" = fasthit <- ifelse(runif(1e4) < .3, TRUE, NA)

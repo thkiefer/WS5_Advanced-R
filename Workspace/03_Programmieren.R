@@ -600,11 +600,26 @@ my_generic.data.frame <- function(x) "Data Frame"
 class(df) <- "data.frame" ## setzen wir die Klasse wieder zurück
 my_generic(df)
 
-##
+## [optional]
 class(df) <- c("lm", "data.frame") ## und wenn wir 2 Klassen zuweisen? 
 print(df)
 my_generic(df)
 print.data.frame(df)
+
+f <- function() 1
+g <- function() 2
+class(g) <- "function"
+
+class(f)
+class(g)
+
+length.function <- function(x) "function" 
+length(f)
+length(g)
+
+print(f)
+print.function <- function(x) "print function"
+print(f)
 
 # S4
 library("lme4")
@@ -620,6 +635,8 @@ slot(fm1, "call")
 
 # ___________________________________ ----
 # Debugging ----
+  
+  ## https://support.rstudio.com/hc/en-us/articles/205612627-Debugging-with-RStudio
 
   ## _> debugging ----
  

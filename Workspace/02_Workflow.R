@@ -30,6 +30,16 @@ pacman::p_load(here,
 # __________________________________________ ---- 
 # Wickham's Vocabulary ----
 
+  ## character manipulation
+  ## ?grep
+  ## ?regex 
+  ## see https://bookdown.org/rdpeng/rprogdatascience/regular-expressions.html
+  ## cheat sheet https://raw.githubusercontent.com/rstudio/cheatsheets/main/regex.pdf
+  ##
+  ## Fragen zu for/if/while/switch?
+  ## https://twitter.com/data_question/status/1518205827223638017
+  for(i in 0:0) print("y") ## length(0:0) 
+
 # __________________________________________ ---- 
 # Googles Style Guide ----
 
