@@ -4,22 +4,15 @@ subtitle: "A first course in LM using the present package."
 author: "Thomas Kiefer"
 date: "`r Sys.Date()`"
 output: 
+  bookdown::html_document:
+    number_sections: yes
+    toc: no
+    toc_depth: 2
   rmarkdown::html_vignette:
     df_print: paged
     number_sections: yes
     toc: no
     toc_depth: 2
-  html_document:
-    number_sections: yes
-    toc: no
-    toc_depth: 2
-vignette: >
-  %\VignetteIndexEntry{First course in LM using the linmod package}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
-csl: "apa6.csl"
-bibliography: "references.bib"
-link-citations: yes
 lang: de
 ---
 
