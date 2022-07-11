@@ -28,7 +28,7 @@ pacman::p_load(here,
                tensor)
 
 ##
-f <- function(x) x^2
+f <- function(x)  x^2 
 formals(f)
 body(f)
 environment(f)
@@ -42,7 +42,7 @@ formals(sum)
 # _______________________________________ ----
 # Suchpfad ----
 
-  ## _> lexical scoping ----
+## _> lexical scoping ----
 
 ##
 x <- 10
@@ -54,10 +54,10 @@ search() ## in der Reihenfolge
 ##
 rm(x)
 
-  ## -> Name masking / Namenüberlagerung
-  ## -> Functions vs. variables / Funktionen gegen Variablen
-  ## -> A fresh start / Neustart
-  ## -> Dynamic lookup / Dynamisches Nachschlagen
+## -> Name masking / Namenüberlagerung
+## -> Functions vs. variables / Funktionen gegen Variablen
+## -> A fresh start / Neustart
+## -> Dynamic lookup / Dynamisches Nachschlagen
 
 # Name masking
 f <- function() {
@@ -71,7 +71,7 @@ rm(f)
 
 x <- 2
 f <- function() {
-
+  
   y <- 1
   c(x, y)
 }
@@ -161,7 +161,7 @@ codetools::findGlobals(f)
 
 rm(f, x)
 
-  ## _> environment ----
+## _> environment ----
 
 # Grundlegendes
 e <- new.env()
@@ -174,11 +174,19 @@ e$d <- 1:3
 # Referenzsemantik
 f <- function(x) {
   x$d <- 4:6
-  invisible()
+  return(5)
 }
 e$d
 f(e)
 e$d
+
+##
+l <- list(a = 1, b = "a", c = FALSE, d = 1:3, a = 2)
+g <- function(x) {
+  x$d <- 4:6
+  return(x)
+}
+l <- g(l)
 
 # Eigenschaften
 ls(name = e) 
@@ -227,8 +235,8 @@ exists("x", envir = e, inherits = FALSE)
 
 # Zusammenfassung
 where <- function(name, env = parent.frame()) { ## parent.frame gibt die 
-                                                ## Umgebung zurück, aus der der 
-                                                ## Aufruf gestartet wird
+  ## Umgebung zurück, aus der der 
+  ## Aufruf gestartet wird
   if (identical(env, emptyenv())) {
     stop("Can't find ", name, call. = FALSE)
   } else if(exists(name, envir = env, inherits = FALSE)) {
@@ -243,8 +251,8 @@ where("b", e) ## starte bei e
 where("x", e) ## starte bei e
 try(where("a", e)) # wurde weiter oben gelöscht
 where("+")
-  
-  ## _> Funktions-Umgebungen / closures [optional] ---- 
+
+## _> Funktions-Umgebungen / closures [optional] ---- 
 
 # Einschließende Umgebungen
 environment(where)
@@ -325,7 +333,7 @@ i()
 # ___________________________________ ----
 # Elemente von Funktionen ----
 
-  ## _> Argumente ----
+## _> Argumente ----
 
 f <- function(abcdef, bcde1, bcde2) {
   c("a" = abcdef, "b1" = bcde1, "b2" = bcde2) 
@@ -420,12 +428,12 @@ f <- function(...) {
   names(list(...))
 }
 f("a" = 1, "b" = 2)
- 
+
 ##
 sum(1, 2, 3, NA, na.mr = TRUE) 
 sum(1, 2, 3, NA, na.rm = TRUE)
-  
-  ## _> Infix- und Ersetzungs-Funktionen [optional] ----
+
+## _> Infix- und Ersetzungs-Funktionen [optional] ----
 
 # Infix
 ##
@@ -443,6 +451,13 @@ second(x) <- 4
 x
 `[<-`
 
+'third' <- function(x, value) {
+  x[3] <- value
+  x
+}
+x <- third(x, 3)
+
+
 ##
 'modify<-' <- function(x, index, value) {
   x[index] <- value
@@ -450,8 +465,8 @@ x
 }
 modify(x, 1) <- 10
 x
-  
-  ## _> return, on.exit, closures ----
+
+## _> return, on.exit, closures ----
 
 # return
 f <- function(x) {
@@ -516,10 +531,15 @@ x <- 1:10
 l <- list("mean" = mean, "median" = median, "sd" = sd)
 lapply(l, function(f, ...) f(x), na.rm = TRUE)
 
-# Funktionale Programmierung
-##
+# Funktionale Programmierung und Metaprogrammierung
+## https://adv-r.hadley.nz/fp.html und 
+## https://adv-r.hadley.nz/metaprogramming.html
+## funktional
 Reduce
 ?Reduce
+## Metaprogrammierung
+?do.call 
+?eval
 
 # ___________________________________ ----
 # Objektorientierung (v.a. S3) ----
@@ -529,7 +549,7 @@ f <- function() {}
 typeof(f)
 is.function(f)
 typeof(sum)
-##
+## is.logical, is.numeric, is.character
 is.primitive(sum) 
 typeof("a")
 
@@ -538,7 +558,7 @@ df <- data.frame("x" = 1:10, y = letters[1:10], stringsAsFactors = TRUE)
 class(df)
 is.object(df)
 is.object("a") # base-Typen sind keine Objekte
-is.object(df$x) # base-Typen sind keine Objekte
+is.object(df["x"]) # base-Typen sind keine Objekte
 is.object(df$y) # Faktoren sind keine base-Typen
 isS4(df) # data.frame ist kein S4-Objekt
 
@@ -564,13 +584,13 @@ inherits(x, "my_class")
 
 ##
 glm ## lower-case-Klassenname ist üblich und '.' sollte vermieden werden
- 
+
 # Konstruktor
 my_class <- function(x) {
   if(!is.numeric(x)) stop("x must be numeric")
   structure(list(x), class = "my_class")
 } 
-  ## oder siehe glm
+## oder siehe glm
 
 ##
 df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
@@ -583,6 +603,7 @@ str(df)
 my_generic <- function(x) UseMethod("my_generic")
 
 x <- my_class(1:5)
+my_generic(x)
 my_generic.my_class <- function(x) "meine Klasse"
 my_generic(x)
 
@@ -591,8 +612,8 @@ my_generic(df)
 
 ##
 print.default
+plot.default
 my_generic.default <- function(x) "eine andere Klasse" 
-class(df)
 my_generic(df)
 
 ##
@@ -605,6 +626,7 @@ class(df) <- c("lm", "data.frame") ## und wenn wir 2 Klassen zuweisen?
 print(df)
 my_generic(df)
 print.data.frame(df)
+stats:::print.lm(df)
 
 f <- function() 1
 g <- function() 2
@@ -635,24 +657,24 @@ slot(fm1, "call")
 
 # ___________________________________ ----
 # Debugging ----
-  
-  ## https://support.rstudio.com/hc/en-us/articles/205612627-Debugging-with-RStudio
 
-  ## _> debugging ----
- 
-  ## Was sind die Schritte zum Debuggen?
-  
-  ## 1) Merke, dass du einen Bug hast.
-  ## 2) Mach ihn reproduzierbar (stackoverflow minimum working example).
-    ## (https://stackoverflow.com/questions/5963269/how-to-make-a-great-r-reproducible-example,
-    ##  https://stackoverflow.com/help/minimal-reproducible-example)
-  ## 3) Finde heraus, wo der Bug ist.
-  ## 4) Behebe den Bug
+## https://support.rstudio.com/hc/en-us/articles/205612627-Debugging-with-RStudio
+
+## _> debugging ----
+
+## Was sind die Schritte zum Debuggen?
+
+## 1) Merke, dass du einen Bug hast.
+## 2) Mach ihn reproduzierbar (stackoverflow minimum working example).
+## (https://stackoverflow.com/questions/5963269/how-to-make-a-great-r-reproducible-example,
+##  https://stackoverflow.com/help/minimal-reproducible-example)
+## 3) Finde heraus, wo der Bug ist.
+## 4) Behebe den Bug
 
 ##
 ii <- 0
 ii
-for (ii in 1:100) if (ii == 35) message()
+for (ii in 1:100) if (ii == 35) message("text")
 ii
 
 ##
@@ -669,20 +691,19 @@ traceback()
 
 ## Rstudio Menü "Debug" -> On Error -> Error Inspector -> Show traceback
 f(10)
- 
+
 ##
-library(here)
-source(here("03a_error-source-01.R"))
+source(here::here("03a_error-source-01.R"))
 f(10) 
 
 # rerun with debug / options(error = browser)
-  ## Öffnet interkative Session, in der der Fehler auftritt. 
-  ## Rstudio menu Debug -> On Error -> Break in Code
-  ##         oder traceback -> Rerun with Debug
-  ## [n]ext step in the function, 
-  ## [s]tep into function to work line by line, 
-  ## [f]inish current loop
-  ## [Q]uit
+## Öffnet interkative Session, in der der Fehler auftritt. 
+## Rstudio menu Debug -> On Error -> Break in Code
+##         oder traceback -> Rerun with Debug
+## [n]ext step in the function, 
+## [s]tep into function to work line by line, 
+## [f]inish current loop
+## [Q]uit
 f(10)
 
 # [optional] ohne RStudio
@@ -694,7 +715,7 @@ options("error" = NULL) # reset in console
 # breakpoints / browser() 
 ## [do:] erzeuge breakpoint in Script "03a_error-source-01.R
 ## source neu source(here("03a_error-source-01.R"))
-source(here("03b_error-source-02.R"))
+source(here::here("03b_error-source-02.R"))
 f(10) 
 
 # debug
@@ -702,7 +723,7 @@ debug(f)
 f(10)
 undebug(f)
 
-  ## _> Condition handling ----
+## _> Condition handling ----
 
 # conditions
 f <- function(x) if(!is.numeric(x)) stop("x muss numerisch sein")
@@ -751,17 +772,18 @@ try(f("a"), silent = TRUE)
 suppressWarnings(g("a"))
 suppressMessages(h("a"))
 suppressMessages(i("a")) ## Hier muss man auf ein verbose-Argument des 
-                         ## Entwicklers hoffen
+## Entwicklers hoffen
 quiet <- function(x) {   ## eine rabiate Methode ist, all diese Ausgaben in 
-    sink(tempfile())     ## ein tempfile zu schreiben
-    on.exit(sink())
-    invisible(force(x))
-  }
+  sink(tempfile())     ## ein tempfile zu schreiben
+  on.exit(sink())
+  invisible(force(x))
+}
 quiet(i("a"))
 
-  ## _> defensiv programming ----
+## _> defensiv programming ----
 
-  ## sapply(, simplify = FALSE)/vapply()
-  ## [, drop = FALSE]
+## sapply(, simplify = FALSE)/vapply()
+## [, drop = FALSE]
 
 
+##
