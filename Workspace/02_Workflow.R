@@ -30,49 +30,59 @@ pacman::p_load(here,
 # __________________________________________ ---- 
 # Wickham's Vocabulary ----
 
-  ## character manipulation
-  ## ?grep
-  ## ?regex 
-  ## see https://bookdown.org/rdpeng/rprogdatascience/regular-expressions.html
-  ## cheat sheet https://raw.githubusercontent.com/rstudio/cheatsheets/main/regex.pdf
-  ##
-  ## Fragen zu for/if/while/switch?
-  ## https://twitter.com/data_question/status/1518205827223638017
-  for(i in 0:0) print("y") ## length(0:0) 
+?lapply
+x <- list(a = 1:10, beta = exp(-3:3), logic = c(TRUE,FALSE,FALSE,TRUE))
+x$a[2] <- NA
+lapply(x, mean, na.rm = TRUE)
+lapply(x, FUN = function(xl){
+  xl[1]
+})
+
+## character manipulation
+## ?grep, ?gsub
+## ?regex 
+## see https://bookdown.org/rdpeng/rprogdatascience/regular-expressions.html
+## cheat sheet https://raw.githubusercontent.com/rstudio/cheatsheets/main/regex.pdf
+##
+## Fragen zu for/if/while/switch?
+## https://twitter.com/data_question/status/1518205827223638017
+for(i in 0:0) print("y") ## length(0:0) 
 
 # __________________________________________ ---- 
 # Googles Style Guide ----
 
+??select
+
 # __________________________________________ ---- 
 # Jenny Brian [@Rstudio] on Project Workflow ----
 
- ## https://www.tidyverse.org/blog/2017/12/workflow-vs-script/
+## https://www.tidyverse.org/blog/2017/12/workflow-vs-script/
 
- ##_ > R-Project ----
+##_ > R-Project ----
 
- ## _> here ----
+## _> here ----
 
 ##
 file.path(getwd(), "Subverzeichnis", "Da ist eine datei.wev")
 here("Subverzeichnis", "Da ist eine datei.wev")
 
- 
-  ## _> str+shift+F10 ----
 
-  ## _> .Rprofile ----
-  
-  ## _> git ----
-  
-  ## https://docs.github.com/en/get-started
-  ## Tools -> Version Control -> Project Setup 
-  ## (oder tools -> Project Options Git/SVN)
-  ## Version Control System -> Git -> yes -> yes
-  ## new tab "git" on top right pane
+## _> str+shift+F10 ----
 
-  ## _> Syntax-Folding und Abschnittsberschriften ----
+## _> .Rprofile ----
 
-  ## [https://twitter.com/hi_im_alise/status/1539746290564997121]
+## _> git ----
 
-  ## _> Dateibezeichnungen ----
+## https://docs.github.com/en/get-started
+## Tools -> Version Control -> Project Setup 
+## (oder tools -> Project Options Git/SVN)
+## Version Control System -> Git -> yes -> yes
+## new tab "git" on top right pane
 
-  ## [https://speakerdeck.com/jennybc/how-to-name-files]
+## _> Syntax-Folding und Abschnittsberschriften ----
+
+## [https://twitter.com/hi_im_alise/status/1539746290564997121]
+
+## _> Dateibezeichnungen ----
+
+## [https://speakerdeck.com/jennybc/how-to-name-files]
