@@ -45,6 +45,7 @@ x <- 0L
 
 ##
 for(i in 1:1e6) x <- x + 1 
+
 ##
 a <- 1
 f <- function() {
@@ -71,7 +72,8 @@ x <- runif(100)
 ##
 sqrt(x)
 exp(log(x) / 2)
- 
+x^.5
+
 ##
 system.time(sqrt(x))
 system.time(x^0.5)
@@ -87,7 +89,7 @@ for(ii in 1:n) sqrt(x)
 proc.time() - ptm
 
 ##
-library(microbenchmark)
+## library(microbenchmark)
 x <- runif(100)
 microbenchmark(sqrt(x))
 microbenchmark(sqrt(x), 
@@ -96,14 +98,14 @@ microbenchmark(sqrt(x),
 microbenchmark(sqrt(x), x^0.5, times = 1000) ## Fokus auf Median und untere und obere Quartile
 
 # Rprof
-  
+
 ##
 ?Rprof ## Funktioniert für Quelldateien
 
 ##
 tmp <- tempfile()
-require(here)
-source(here("04a_profiling-source-01.R")) ## 3 Geschachtelte Funktionen mit sleep()
+##require(here)
+source(here::here("04a_profiling-source-01.R")) ## 3 Geschachtelte Funktionen mit sleep()
 
 Rprof(tmp, interval = .01)
 f()
@@ -123,10 +125,13 @@ profvis({
 
 # ______________________________ ----
 # Optimieren ----
-  
-  ## _> Vorhandene Lösungen? ----
 
-  ## _> Sparsam programmieren ----
+## _> Vorhandene Lösungen? ----
+
+## _> Defensiv/Sparsam programmieren ----
+
+## rowSums, colSums, rowMeans, colMeans, rowsum
+## eher als: apply/aggregate
 
 ##
 x <- 1:100
@@ -147,7 +152,9 @@ microbenchmark({
 x <- rep(letters[1:3], each = 50)
 microbenchmark(factor(x), factor(x, levels = c("a", "b", "c")))
 
-  ## _> Vektorisieren ----
+## _> Vektorisieren ----
+
+## outer, tensor
 
 ##
 x <- matrix(runif(100), ncol = 5)
@@ -160,17 +167,19 @@ microbenchmark(
   },
   apply(x, 2, sum),
   colSums(x),
+  rowsum(x, r),
   r %*% x
 )
 
-all.equal(c(r %*% x), colSums(x))
+# all.equal(c(r %*% x), colSums(x))
 
 ## rowsum
 x <- matrix(runif(100), ncol = 5)
 group <- sample(1:8, 20, TRUE)
 microbenchmark(
   aggregate(x, list(group), sum),
-  rowsum(x, group)
+  rowsum(x, group),
+  rowsum.default(x, group)
 )
 rowsum
 rowsum.default # internal rowsum_matrix
@@ -180,19 +189,30 @@ mx <- matrix(runif(1e6), ncol = 2)
 bmx <- cmx <- matrix(NA, nrow(mx) / 2, ncol(mx))
 microbenchmark( ## multipliziere jede Zeile eintragsweise mit der darauffolgenden.
   "for" = for(ii in 1:nrow(bmx)) bmx[ii, ] <- mx[2 * ii - 1, ] * mx[2 * ii, ],
-  "index" = cmx <- mx[seq(1, nrow(mx), by = 2), ] * mx[seq(2, nrow(mx), by = 2), ]
+  "index" = cmx <- mx[seq(1, nrow(mx), by = 2), ] * mx[seq(2, nrow(mx), by = 2), ],
+  "index2" = {
+    index <- seq(1, nrow(mx), by = 2)
+    cmx <- mx[index, ] * mx[index + 1, ]
+  }
 )
 
 all.equal(bmx, cmx)
 
 ## vectorized if
-hit <- vector(length =)
+hit <- vector(length = 1e4)
 microbenchmark(
   "hit" = for(i in 1:1e4) if(runif(1) < .3) hit[i] <- TRUE,
-  "fasthit" = fasthit <- ifelse(runif(1e4) < .3, TRUE, NA)
+  "fasthit" = fasthit <- ifelse(runif(1e4) < .3, TRUE, NA)#,
+  #"fastest" = hit[runif(1e4) < .3] <- TRUE
 )
 
-  ## _> Kopieren vermeiden ----
+## Alles aus schleifen auslagern, das nicht gebraucht wird
+## Wenn man die Wahl hat, schleifen über die geringste Anzahl Iterationen 
+##  laufen zu lassen (z.B. Fälle vs. Variablen)
+## Abwägen: große, schwer zu debuggende, aufwendige Indexmatrizen vs. 
+##  Geschwindigkeitsgewinn
+
+## _> Kopieren vermeiden ----
 
 n <- 1000
 microbenchmark(
@@ -212,15 +232,15 @@ n <- 10
 microbenchmark(
   "wachsen" = {
     df <- data.frame(a = character(0), 
-                        b = numeric(0))
+                     b = numeric(0))
     for(i in 1:n){
       df<- rbind(df, data.frame(a = sample(letters, 1, replace = TRUE),
-                                      b = runif(1)))
+                                b = runif(1)))
     }
   },
   "initialisieren" = {
     df <- data.frame(a = character(n), 
-                        b = numeric(n))
+                     b = numeric(n))
     for(i in 1:n){
       df$a <- sample(letters, 1, replace = TRUE)
       df$b <- runif(1)
@@ -228,7 +248,7 @@ microbenchmark(
   })
 
 
-##
+## wachsen
 f1 <- function(n) {
   my.df <- data.frame(a = character(0), 
                       b = numeric(0))
@@ -240,7 +260,7 @@ f1 <- function(n) {
   my.df
 }
 
-##
+## wachsen, aber nicht jedesmal
 f2 <- function(n) {
   current.N <- 10 * n
   my.df<- data.frame(a = character(current.N),
@@ -262,7 +282,7 @@ f2 <- function(n) {
   my.df
 }
 
-##
+## Liste erzeugen, rbind auslagern
 f3 <- function(n) {
   my.list<- vector('list', n)
   for(i in 1:n) { 
@@ -273,9 +293,10 @@ f3 <- function(n) {
   my.df<- do.call('rbind', my.list) # Reduce('rbind', my.list)
   my.df
 }
+
 microbenchmark(f1(10), f2(10), f3(10))
 
-  ## _> Paralleles programmieren ----
+## _> Paralleles programmieren ----
 
 ##
 library(parallel)
@@ -290,7 +311,7 @@ typeof(cl)
 (n_cl <- length(cl))
 cl[[1]]
 names(cl[[1]])
-stopCluster(cl)
+# stopCluster(cl)
 
 ##
 x <- 1:10
@@ -300,7 +321,7 @@ clusterExport(cl, "x")
 clusterEvalQ(cl, x)
 
 ##
-library(mvtnorm)
+library(mvtnorm) # par, options
 clusterEvalQ(cl, exists("dmvnorm"))
 clusterEvalQ(cl, {
   library(mvtnorm)
@@ -327,20 +348,23 @@ x <- rnorm(1000)
 
 res <- foreach(ii = 1:length(res), 
                .combine = c, ## oft list 
-               .packages = NULL) %dopar% { ## ersetze %dopar% durch %do%  
-                                           ## für nicht-parallel
+               .packages = NULL) %dopar%  { ## ersetze %dopar% durch %do%  
+                 ## für nicht-parallel
                  seq_length <- length(x)/length(res) ## greife auf Objekte 
-                                                     ## im Startprozess zu
+                 ## im Startprozess zu
                  index <- (ii - 1) * seq_length + (1:seq_length) 
-                                                     ## greife auf Objekte
-                                                     ## des Aufrufs zu
+                 ## greife auf Objekte
+                 ## des Aufrufs zu
                  list(mean(rnorm(x[index])))
                }
 
 res
 stopCluster(cl)
 
-  ## _> Auslagern ----
+## _> Auslagern ----
+
+## http://www.rcpp.org/
+## https://adv-r.hadley.nz/rcpp.html?q=Rcpp
 
 library(Rcpp)
 
@@ -356,13 +380,13 @@ add
 add(1, 2, 3)
 
 ##
-cppFunction('int sumC(NumericVector x) { // Es gibt NumericVector, IntegerVector, 
+cppFunction('int sumC2(NumericVector x) { // Es gibt NumericVector, IntegerVector, 
                                          // CharacterVector, LogicalVector
                                          // double, int, String, bool
                int n = x.size();         // jede Variable muss deklariert und 
                                          // initialisiert werden (auch ein Laufindex)
                                          // [object][dot][method]-Syntax (x.size())
-               double tot = 0;
+               int tot = 0;
                for(int i = 0; i < n; i++){ // if ist genau wie in R; for ist leicht anders
                                            // VEKTOR INDEX STARTET BEI 0
                  tot += x[i];              // a += b ist Abkürzung für a = a + b
@@ -381,17 +405,27 @@ microbenchmark(sumR(x), sumC(x), sum(x))
 
 # SourceCpp
 
-  ## file -> new -> c++
-  ## bespreche default-Input 
-  ## header nötig
-  ## // [[Rcpp::export]] für export in R (space is notwendig)
-  ## R-code in C++-Command--Blocks for Tests
+## file -> new -> c++
+## bespreche default-Input 
+## header nötig
+## // [[Rcpp::export]] für export in R (space is notwendig)
+## R-code in C++-Command--Blocks for Tests
 
-sourceCpp(here("04b_sourceCpp.cpp"))
+sourceCpp(here::here("04b_sourceCpp.cpp"))
+
+## NA_INTEGER, ...
+## objekt.size, objekt[]
+## return List::creat()
+
+x <- matrix(sample(100), nrow = 10)
+microbenchmark(rowSumsC(x), rowSums(x))
 
 # sugar
 
 cppFunction('int sumC2(NumericVector x) {
                return sum(x);
              }')
-microbenchmark(sumR(x), sumC2(x), sumC(x), sum(x))
+microbenchmark(sumR(x), #
+               sumC2(x), 
+               sumC(x), 
+               sum(x))
