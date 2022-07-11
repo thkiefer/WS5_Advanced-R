@@ -54,7 +54,7 @@ dbl <- c(1, 2.5, 4.5)
 int <- c(1L, 6L, 10L)
 log <- c(TRUE, FALSE, T, F)
 chr <- c("mein", "string", "vector")
- 
+
 ##
 c(1, c(2, 3)) 
 
@@ -75,13 +75,15 @@ str(NA_character_)
 c(TRUE, "a")
 as.numeric(c(TRUE, TRUE, FALSE))
 sum(c(TRUE, TRUE, FALSE))
-as.logical(c(0, 1, 2.4))
+as.logical(c(0, 1, 2.4, -1))
 as.logical(c("a", "1", "b"))
+as.logical(c("0", "1", "2.4"))
+str(c(NA_character_, 3.4))
 
 # ____________________________________ ----
 # Klassenmethoden ----
 
-  ## _> Listen ----
+## _> Listen ----
 
 ##
 x <- list(dbl, int, log, chr)
@@ -97,15 +99,21 @@ length(y)
 
 ##
 list(list(1, 2), c(3, 4))
-c(list(1, 2), c(3, 4))
-O
+c(list(1, 2), c(3, 4)) ## Wenn eine Kombination von Listen und Vektoren an c() 
+## übergeben wird, wird der Vektor zu einer Liste 
+## gewandelt -> == c(list(1, 2), as.list(c(3, 4)))
+## sollte vermieden werden
+c(list(1, 2), list(c(3, 4))) ## besser; keine Konvertierung
 
-  ## _> Attribute ----
+list(1, 2, c(3, 4))
+
+## _> Attribute ----
 
 x <- 1:10
 attr(x, "my_attr") <- "mein Attributtext"
+attr(x, "my_attr2") <- "mein Attributtext2"
 
-attributes(x) 
+attributes(x)[["my_attr"]]
 attr(x, "my_attr") 
 x <- structure(1:10, "my_attr" = "mein Attributtext") 
 
@@ -122,7 +130,7 @@ x
 names(x) <- c("a", "b", "c")
 x
 
-setNames(x, c("d", "e", "f"))
+setNames(x, nm = c("d", "e", "f"))
 
 unname(x) 
 names(x) <- NULL
@@ -139,7 +147,7 @@ x
 c(x, factor("d")) 
 
 ##
-table(factor(c("f", "f", "f"), levels = c("m", "f")))
+table(factor(c("f", "f", "f"), levels = c("m", "f", "d")))
 
 ## stringsAsFactors
 z <- read.csv(text = "value\n12\n1\n.\n9",
@@ -155,19 +163,20 @@ str(z)
 z <- read.csv(text = "value\n12\n1\n.\n9", na.strings = ".")
 str(z)
 
-  ## _> matrix/array ----
+## _> matrix/array ----
 
 # Erstellen
 a <- matrix(1:6, ncol = 3, nrow = 2)  # Spaltendominant
 b <- array(1:12, dim = c(2, 3, 2))
 
-c <- 1:6 
-dim(c) <- c(3, 2)
+cc <- 1:6 
+dim(cc) <- c(3, 2)
 
 d <- structure(1:6, dim = c(3, 2))
+d <- structure(1:6, ncol = 3, nrow = 2) ## so nicht...
 
 ##
-dim(c) <- c(3, 3)
+dim(cc) <- c(3, 3)
 matrix(1:6, ncol = 3, nrow = 3)
 
 # Attribute
@@ -175,7 +184,9 @@ a
 
 length(a) 
 ncol(a) 
+ncol(a) <- 4
 nrow(a)
+`dim<-`
 
 ##
 rownames(a) <- c("A", "B")
@@ -189,7 +200,7 @@ names(b)
 names(b) <- c("A", "b")
 c(b)
 b
- 
+
 ##
 class(a)
 class(b)
@@ -210,11 +221,12 @@ l
 l[1, 2]
 l[[1]]
 
-  ## _> data.frame ----
+## _> data.frame ----
 
 # Erstellung 
 df <- data.frame(x = 1:3, y = c("a", "b", "c"))
 str(df)
+is.list(df)
 
 ##
 df <- data.frame(x = 1:3, y = c("a", "b", "c"),
@@ -232,9 +244,12 @@ class(df)
 row.names(df) 
 rownames(df) 
 rownames
+dimnames(df)[[2]]
 dimnames.data.frame
 
 # Kombinieren
+c(df, data.frame(z = 1:3))
+c(list(1:3, factor(c("a", "b", "c"))), list(1:3))
 cbind(df, data.frame(z = 1:3))
 str(cbind(df, z = 1:3)) 
 
@@ -242,7 +257,7 @@ str(cbind(df, z = 1:3))
 rbind(df, data.frame(y = "z", x = 10))
 
 ## Achtung
-str(data.frame(cbind(a = 1:2, b = c("a", "b")))) 
+str(data.frame(cbind(a = 1:2, b = c("a", "b")), stringsAsFactors = TRUE)) 
 
 ##
 x <- data.frame(a = 1:2, b = c("a", "b")) # stringsAsFactors = FALSE ist default
@@ -261,17 +276,19 @@ data.frame(x = 1:3, y = c("a", "b", "c"), z = I(list(1:2, 1:3, 1:4)))
 # ____________________________________ ----
 # Zugriffslogik ----
 
-  ## _> vector ----
+## _> vector ----
 x <- c(2.1, 4.2, 3.3, 5.4)
 
+x[c(3L, 1L)]
 x[c(3, 1)]
+x[c(2.1, 2.9)]
 x[order(x)]
+sort(x)
 sort.default
 x[c(1, 1)]
-x[c(2.1, 2.9)]
 x[c(1, 5)]
 x[-c(1, 2)]
-x[c(-1, 2)]
+x[c(-1L, 2L)]
 
 x[c(TRUE, TRUE, FALSE, FALSE)]
 x[x > 3]
@@ -297,14 +314,14 @@ y[c("a", "a")]
 y <- setNames(x, c("abc", "def", "geh", "ijk"))
 y[c("a", "d")]
 
-  ## _> matrix ----
+## _> matrix ----
 
 mx <- matrix(1:9, nrow = 3, dimnames = list(NULL, c("A", "B", "C")))
- 
+
 mx[1:2, ]
 mx[c(TRUE, FALSE, TRUE), c("B", "A")]  
 mx[0, -2]
- 
+
 ##
 dim(mx[1, -2])
 dim(mx[1, -2, drop = FALSE])
@@ -321,12 +338,13 @@ sel_mx <- rbind(c(1, 1),
 vals[sel_mx]
 which(vals == "4,1")
 which(vals == "4,1", arr.ind = TRUE)
- 
-  ## _> data.frame & list ----
+
+## _> data.frame & list ----
 
 df <- data.frame(x = 1:3, y = 3:1, z = c("a", "b", "c"))
 
 df[df$x == 2, ]
+str(mx[1, -2])
 str(df[df$x == 2, ])
 str(df[, c("x", "z")]) 
 
@@ -364,7 +382,7 @@ l$a <- 3
 l["d"] <- 3 
 l
 
-  ## _> Struktur-vereinfachend/-erhaltend ----
+## _> Struktur-vereinfachend/-erhaltend ----
 
 # Vektor
 x <- setNames(1:4, letters[1:4])
@@ -405,10 +423,12 @@ l$a
 df <- data.frame(a = 1:3, b = 4:6, c = 7:9)
 attributes(df)
 str(df[1])
-str(df[, 1])
-str(df[, 1, drop = FALSE])
 str(df[[1]])
 str(df$a)
+
+str(df[, 1])
+str(df[, 1, drop = FALSE])
+
 
 # combine
 x <- 1:4
@@ -424,7 +444,7 @@ list(x, unname(unlist(l)))
 
 rep(list(x), 5) ## https://stackoverflow.com/questions/8406307/repeat-list-object-n-times
 
-  ## _> Zugriff und Zuweisung ----
+## _> Zugriff und Zuweisung ----
 
 x <- 1:5
 
@@ -432,7 +452,7 @@ x[c(1, 2)] <- 2:3 # integer
 x
 
 x[-1] <- 3:1 # die linke Seite sollte genauso lange sein, wie die rechte Seite
-             # sonst zyklisch erweiternd 
+# sonst zyklisch erweiternd 
 x
 
 x[c(1, 1)] <- 2:3 # kein Check auf doppelten Zugriff 
@@ -450,7 +470,7 @@ x
 df <- data.frame(a = c(1, 10, NA))
 df
 df$a < 5
-df$a[df$a < 5] <- 0 
+df$a[df$a < 5] <- 0 ## which(df$a < 5) 
 df
 
 ##
@@ -459,9 +479,9 @@ str(lapply(df, '*', 2))
 df[] <- lapply(df, '*', 2)
 df <- lapply(df, '*', 2)
 
-  ## _> Anwendung ----
+## _> Anwendung ----
 
-  ## [optional]
+## [optional]
 
 # Rekodierung
 x <- c("m", "f", "u", "f", "f", "m", "m")
@@ -483,7 +503,7 @@ info[as.character(grades), ]
 # Bootstrap-Stichproben ziehen
 df <- data.frame(x = rep(1:3, each = 2), y = 6:1, z = letters[1:6])
 set.seed(10)
-df[sample(nrow(df), replace = TRUE), ]
+df[sample(nrow(df), n = 500, replace = TRUE), ]
 
 # Sortieren
 x <- c("b", "c", "a")
@@ -504,6 +524,8 @@ df$z <- NULL
 df
 
 # mehrstufige Logische Operatoren
-mtcars[mtcars$gear == 5 & mtcars$cyl == 4, ]
+mtcars[mtcars$gear == 5 & mtcars$cyl == 4, ] ## don't use || or &&
+# logic laws: !(X & Y) == !X | !Y
+#             !(X | Y) == !X & !Y
 
-
+# !((X & Y) | !Z) = !(X & Y) & !! Z = !X | !Y & Z
