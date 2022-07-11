@@ -32,8 +32,8 @@ NumericVector rowSumsC(NumericMatrix x) {
 // run after the compilation.
 //
 
-/*** R
-library(microbenchmark)
-x <- matrix(sample(100), nrow = 10)
-microbenchmark(rowSumsC(x), rowSums(x))
-*/
+// /*** R
+// library(microbenchmark)
+// x <- matrix(sample(100), nrow = 10)
+// microbenchmark(rowSumsC(x), rowSums(x))
+// */
