@@ -644,6 +644,8 @@ slot(fm1, "call")
   
   ## 1) Merke, dass du einen Bug hast.
   ## 2) Mach ihn reproduzierbar (stackoverflow minimum working example).
+    ## (https://stackoverflow.com/questions/5963269/how-to-make-a-great-r-reproducible-example,
+    ##  https://stackoverflow.com/help/minimal-reproducible-example)
   ## 3) Finde heraus, wo der Bug ist.
   ## 4) Behebe den Bug
 
@@ -758,3 +760,8 @@ quiet <- function(x) {   ## eine rabiate Methode ist, all diese Ausgaben in
 quiet(i("a"))
 
   ## _> defensiv programming ----
+
+  ## sapply(, simplify = FALSE)/vapply()
+  ## [, drop = FALSE]
+
+
