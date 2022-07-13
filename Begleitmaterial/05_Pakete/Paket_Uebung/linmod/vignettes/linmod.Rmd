@@ -1,0 +1,40 @@
+---
+title: "linmod"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{linmod}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(linmod)
+```
+
+Analysiere `cats` Datensatz aus dem `R`-Paket MASS. 
+Dazu muss MASS in der DESCRIPTION als *Suggests* geführt werden.
+
+```{r analyse}
+lmod_fit <- linmod(MASS::cats$Hwt, MASS::cats$Bwt)
+```
+
+Zeige das Modell-Objekt mit der `print`-Ausgabe an.
+
+```{r print}
+lmod_fit
+```
+
+Für die geschätzten Parameter wurde die generische S3-Methode `coef` 
+implementiert.
+
+
+```{r coef}
+coef(lmod_fit)
+```
